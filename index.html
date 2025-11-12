@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seni Seviyorum 💜</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>💜 Bebişimin SAT Başarı Takip Sistemi</h1>
+            <p class="subtitle">Güzelim, senin için özel olarak hazırlandım ❤️</p>
+            <p class="subtitle">Her başarında yanındayım! 🌟</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Net Girişi Bölümü -->
+            <section class="input-section">
+                <h2>💜 Bugünün Netleri Nasıl Geçti Nur'um?</h2>
+                <form id="netForm">
+                    <div class="form-group">
+                        <label for="date">Tarih:</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="math">Matematik Net:</label>
+                        <input type="number" id="math" min="0" max="58" step="0.1" placeholder="0-58 arası" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="english">İngilizce Net:</label>
+                        <input type="number" id="english" min="0" max="52" step="0.1" placeholder="0-52 arası" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notlar (Opsiyonel):</label>
+                        <textarea id="notes" rows="3" placeholder="Bugün nasıl geçti? Notlarını ekle..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </form>
+            </section>
+
+            <!-- İstatistikler Bölümü -->
+            <section class="stats-section">
+                <h2>💜 Başarı Grafiği</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card math-card">
+                        <h3>🔢 Matematik</h3>
+                        <div class="stat-item">
+                            <span class="stat-label">Ortalama:</span>
+                            <span class="stat-value" id="mathAvg">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">En Yüksek:</span>
+                            <span class="stat-value" id="mathMax">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">En Düşük:</span>
+                            <span class="stat-value" id="mathMin">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Son 7 Gün Ort.:</span>
+                            <span class="stat-value" id="mathWeekAvg">0</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card english-card">
+                        <h3>🌍 İngilizce</h3>
+                        <div class="stat-item">
+                            <span class="stat-label">Ortalama:</span>
+                            <span class="stat-value" id="englishAvg">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">En Yüksek:</span>
+                            <span class="stat-value" id="englishMax">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">En Düşük:</span>
+                            <span class="stat-value" id="englishMin">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Son 7 Gün Ort.:</span>
+                            <span class="stat-value" id="englishWeekAvg">0</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card total-card">
+                        <h3>📊 Toplam</h3>
+                        <div class="stat-item">
+                            <span class="stat-label">Toplam Test:</span>
+                            <span class="stat-value" id="totalTests">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Ortalama Net:</span>
+                            <span class="stat-value" id="totalAvg">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Son Test:</span>
+                            <span class="stat-value" id="lastTestDate">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">İlerleme:</span>
+                            <span class="stat-value progress-indicator" id="progress">📈</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Geçmiş Kayıtlar Bölümü -->
+            <section class="history-section">
+                <div class="section-header">
+                    <h2>Bebeğimin Başarı Hikayesi</h2>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" id="exportBtn">📥 Dışa Aktar</button>
+                        <button class="btn btn-danger" id="clearBtn">🗑️ Tümünü Sil</button>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <input type="text" id="searchInput" placeholder="Tarih veya not ara..." class="search-input">
+                    <select id="sortSelect" class="sort-select">
+                        <option value="date-desc">En Yeni → Eski</option>
+                        <option value="date-asc">En Eski → Yeni</option>
+                        <option value="math-desc">Matematik (Yüksek → Düşük)</option>
+                        <option value="english-desc">İngilizce (Yüksek → Düşük)</option>
+                        <option value="total-desc">Toplam (Yüksek → Düşük)</option>
+                    </select>
+                </div>
+
+                <div id="historyList" class="history-list">
+                    <p class="empty-message">Henüz kayıt bulunmuyor. Yukarıdaki formdan net girişi yapabilirsiniz.</p>
+                </div>
+            </section>
+        </div>
+
+        <footer>
+            <p style="margin-top: 10px; font-size: 0.85rem; opacity: 0.9;">Her adımında seninle gurur duyuyorum ❤️</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
