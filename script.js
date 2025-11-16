@@ -70,12 +70,12 @@ document.getElementById('netForm').addEventListener('submit', function(e) {
 
     // Başarı mesajı
     const motivationalMessages = [
-        '✨ Harika gidiyorsun Nur! Gurur duyuyorum! 💕',
+        '✨ Harikasın Aşk! Seninle gurur duyuyorum! 💕',
         '🌟 Bir adım daha ileri! Sen muhteşemsin aşkım! ❤️',
-        '💫 Kaydedildi! Her gün biraz daha büyük başarılara! 💜',
-        '🎯 Süpersin Nur! Hedeflerine yaklaşıyorsun! 💕',
-        '⭐ Tebrikler! Çalışkan sevgilim benim! ❤️',
-        '💝 Kaydedildi! Sen her şeyin en iyisini hak ediyorsun! 🌟'
+        '💫 Her gün biraz daha büyük başarılara! 💜',
+        '🎯 Süpersin Aşkım! Hedeflerine yaklaşıyorsun! 💕',
+        '⭐ Çalışkan sevgilim benim! ❤️',
+        '💝 Sen her şeyin en iyisini hak ediyorsun! 🌟'
     ];
     const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
     alert(randomMessage);
@@ -170,7 +170,7 @@ function renderHistory(filteredData = null) {
     const historyList = document.getElementById('historyList');
 
     if (data.length === 0) {
-        historyList.innerHTML = '<p class="empty-message">Henüz kayıt bulunmuyor. Yukarıdaki formdan net girişi yapabilirsiniz.</p>';
+        historyList.innerHTML = '<p class="empty-message">Henüz kayıt bulunmuyor. Yukarıdaki formdan net girişi yapabilirsin.</p>';
         return;
     }
 
@@ -204,7 +204,7 @@ function renderHistory(filteredData = null) {
 
 // Kayıt sil
 function deleteEntry(id) {
-    if (confirm('Bu kaydı silmek istediğinizden emin misiniz?')) {
+    if (confirm('Bu kaydı silmek istediğinizden emin misin?')) {
         let data = getData();
         data = data.filter(entry => entry.id !== id);
         saveData(data);
@@ -215,8 +215,8 @@ function deleteEntry(id) {
 
 // Tüm kayıtları sil
 document.getElementById('clearBtn').addEventListener('click', function() {
-    if (confirm('⚠️ TÜM KAYITLARI SİLMEK İSTEDİĞİNİZDEN EMİN MİSİNİZ?\n\nBu işlem geri alınamaz!')) {
-        if (confirm('Son kez soruyorum: Tüm veriler silinecek, emin misiniz?')) {
+    if (confirm('⚠️ TÜM KAYITLARI SİLMEK İSTEDİĞİNİZDEN EMİN MİSİN?\n\nBu işlem geri alınamaz!')) {
+        if (confirm('Son kez soruyorum: Tüm veriler silinecek, emin misin?')) {
             localStorage.removeItem('satData');
             updateStats();
             renderHistory();
