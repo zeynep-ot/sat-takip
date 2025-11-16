@@ -37,9 +37,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: 
-        radial-gradient(circle at 20% 50%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(192, 107, 255, 0.1) 0%, transparent 50%);
+    background-image: radial-gradient(circle at 20% 50%, rgba(255, 107, 157, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(192, 107, 255, 0.1) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
 }
@@ -88,8 +86,13 @@ header::after {
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
 }
 
 header h1 {
@@ -107,7 +110,9 @@ header h1 {
     padding: 30px;
 }
 
+
 /* Form Bölümü */
+
 .input-section {
     background: var(--card-bg);
     padding: 30px;
@@ -155,7 +160,9 @@ header h1 {
     resize: vertical;
 }
 
+
 /* Butonlar */
+
 .btn {
     padding: 12px 24px;
     border: none;
@@ -186,8 +193,15 @@ header h1 {
 }
 
 @keyframes sparkle {
-    0%, 100% { opacity: 0.5; transform: translateY(-50%) scale(1); }
-    50% { opacity: 1; transform: translateY(-50%) scale(1.2); }
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: translateY(-50%) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1.2);
+    }
 }
 
 .btn-primary:hover {
@@ -213,7 +227,9 @@ header h1 {
     background: #dc2626;
 }
 
+
 /* İstatistikler Bölümü */
+
 .stats-section {
     margin-bottom: 30px;
 }
@@ -289,7 +305,9 @@ header h1 {
     font-size: 1.5rem;
 }
 
+
 /* Geçmiş Kayıtlar Bölümü */
+
 .history-section {
     background: var(--card-bg);
     padding: 30px;
@@ -454,7 +472,9 @@ header h1 {
     line-height: 1.5;
 }
 
+
 /* Footer */
+
 footer {
     background: var(--text-color);
     color: white;
@@ -463,7 +483,9 @@ footer {
     font-size: 0.9rem;
 }
 
+
 /* Scrollbar Özelleştirme */
+
 .history-list::-webkit-scrollbar {
     width: 8px;
 }
@@ -482,57 +504,51 @@ footer {
     background: var(--secondary-color);
 }
 
+
 /* Responsive Tasarım */
+
 @media (max-width: 768px) {
     body {
         padding: 10px;
     }
-
     header h1 {
         font-size: 1.8rem;
     }
-
     .subtitle {
         font-size: 0.95rem;
     }
-
     .main-content {
         padding: 15px;
     }
-
     .input-section,
     .history-section {
         padding: 20px;
     }
-
     .stats-grid {
         grid-template-columns: 1fr;
     }
-
     .section-header {
         flex-direction: column;
         align-items: flex-start;
     }
-
     .action-buttons {
         width: 100%;
     }
-
     .action-buttons .btn {
         flex: 1;
     }
-
     .filter-section {
         flex-direction: column;
     }
-
     .search-input,
     .sort-select {
         width: 100%;
     }
 }
 
+
 /* Animasyonlar */
+
 @keyframes fadeIn {
     from {
         opacity: 0;

@@ -26,23 +26,23 @@ function formatNumber(num) {
 // Form submit olayı
 document.getElementById('netForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const date = document.getElementById('date').value;
     const math = parseFloat(document.getElementById('math').value);
     const english = parseFloat(document.getElementById('english').value);
     const notes = document.getElementById('notes').value.trim();
-    
-    // Validasyon
-    if (math < 0 || math > 58) {
-        alert('Matematik neti 0-58 arasında olmalıdır!');
+
+    // Validasyon - Sadece pozitif sayı kontrolü
+    if (math < 0) {
+        alert('Matematik neti 0 veya daha büyük olmalıdır!');
         return;
     }
-    
-    if (english < 0 || english > 52) {
-        alert('İngilizce neti 0-52 arasında olmalıdır!');
+
+    if (english < 0) {
+        alert('İngilizce neti 0 veya daha büyük olmalıdır!');
         return;
     }
-    
+
     // Yeni kayıt oluştur
     const newEntry = {
         id: Date.now(),
@@ -52,22 +52,22 @@ document.getElementById('netForm').addEventListener('submit', function(e) {
         total: math + english,
         notes: notes
     };
-    
+
     // Verileri kaydet
     const data = getData();
     data.push(newEntry);
     saveData(data);
-    
+
     // Formu temizle
     this.reset();
-    
+
     // Bugünün tarihini varsayılan olarak ayarla
     document.getElementById('date').valueAsDate = new Date();
-    
+
     // Sayfayı güncelle
     updateStats();
     renderHistory();
-    
+
     // Başarı mesajı
     const motivationalMessages = [
         '✨ Harika gidiyorsun Nur! Gurur duyuyorum! 💕',
@@ -84,56 +84,56 @@ document.getElementById('netForm').addEventListener('submit', function(e) {
 // İstatistikleri güncelle
 function updateStats() {
     const data = getData();
-    
+
     if (data.length === 0) {
         // Veri yoksa sıfırları göster
         document.getElementById('mathAvg').textContent = '0.0';
         document.getElementById('mathMax').textContent = '0.0';
         document.getElementById('mathMin').textContent = '0.0';
         document.getElementById('mathWeekAvg').textContent = '0.0';
-        
+
         document.getElementById('englishAvg').textContent = '0.0';
         document.getElementById('englishMax').textContent = '0.0';
         document.getElementById('englishMin').textContent = '0.0';
         document.getElementById('englishWeekAvg').textContent = '0.0';
-        
+
         document.getElementById('totalTests').textContent = '0';
         document.getElementById('totalAvg').textContent = '0.0';
         document.getElementById('lastTestDate').textContent = '-';
         document.getElementById('progress').textContent = '📊';
         return;
     }
-    
+
     // Matematik istatistikleri
     const mathScores = data.map(d => d.math);
     const mathAvg = mathScores.reduce((a, b) => a + b, 0) / mathScores.length;
     const mathMax = Math.max(...mathScores);
     const mathMin = Math.min(...mathScores);
-    
+
     // İngilizce istatistikleri
     const englishScores = data.map(d => d.english);
     const englishAvg = englishScores.reduce((a, b) => a + b, 0) / englishScores.length;
     const englishMax = Math.max(...englishScores);
     const englishMin = Math.min(...englishScores);
-    
+
     // Son 7 günün ortalaması
     const today = new Date();
     const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
     const recentData = data.filter(d => new Date(d.date) >= sevenDaysAgo);
-    
+
     let mathWeekAvg = 0;
     let englishWeekAvg = 0;
-    
+
     if (recentData.length > 0) {
         mathWeekAvg = recentData.reduce((sum, d) => sum + d.math, 0) / recentData.length;
         englishWeekAvg = recentData.reduce((sum, d) => sum + d.english, 0) / recentData.length;
     }
-    
+
     // Toplam istatistikler
     const totalAvg = (mathAvg + englishAvg);
     const sortedByDate = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
     const lastTestDate = formatDate(sortedByDate[0].date);
-    
+
     // İlerleme göstergesi
     let progressIcon = '📊';
     if (data.length >= 2) {
@@ -146,18 +146,18 @@ function updateStats() {
             progressIcon = '➡️ Sabit';
         }
     }
-    
+
     // HTML'e yazdır
     document.getElementById('mathAvg').textContent = formatNumber(mathAvg);
     document.getElementById('mathMax').textContent = formatNumber(mathMax);
     document.getElementById('mathMin').textContent = formatNumber(mathMin);
     document.getElementById('mathWeekAvg').textContent = formatNumber(mathWeekAvg);
-    
+
     document.getElementById('englishAvg').textContent = formatNumber(englishAvg);
     document.getElementById('englishMax').textContent = formatNumber(englishMax);
     document.getElementById('englishMin').textContent = formatNumber(englishMin);
     document.getElementById('englishWeekAvg').textContent = formatNumber(englishWeekAvg);
-    
+
     document.getElementById('totalTests').textContent = data.length;
     document.getElementById('totalAvg').textContent = formatNumber(totalAvg);
     document.getElementById('lastTestDate').textContent = lastTestDate;
@@ -168,15 +168,15 @@ function updateStats() {
 function renderHistory(filteredData = null) {
     const data = filteredData || getData();
     const historyList = document.getElementById('historyList');
-    
+
     if (data.length === 0) {
         historyList.innerHTML = '<p class="empty-message">Henüz kayıt bulunmuyor. Yukarıdaki formdan net girişi yapabilirsiniz.</p>';
         return;
     }
-    
+
     // Tarihe göre sırala (en yeni önce)
     const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
-    
+
     historyList.innerHTML = sortedData.map(entry => `
         <div class="history-item">
             <div class="history-header">
