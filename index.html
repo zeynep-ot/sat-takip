@@ -19,21 +19,33 @@
         <div class="main-content">
             <!-- Net Girişi Bölümü -->
             <section class="input-section">
-                <h2>💜 Bugünün Netleri Nasıl Geçti Aşkım?</h2>
+                <h2>💜 Bugünün Testi Nasıl Geçti Aşkım?</h2>
                 <form id="netForm">
                     <div class="form-group">
                         <label for="date">Tarih:</label>
                         <input type="date" id="date" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="math">Matematik Net:</label>
-                        <input type="number" id="math" min="0" step="0.1" placeholder="Net sayısını gir" required>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="mathQuestions">📚 Matematik Soru Sayısı:</label>
+                            <input type="number" id="mathQuestions" min="1" placeholder="Kaç soru çözdün?" required>
+                        </div>
+                        <div class="form-group half">
+                            <label for="math">✅ Matematik Net:</label>
+                            <input type="number" id="math" min="0" step="0.1" placeholder="Net sayısı" required>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="english">İngilizce Net:</label>
-                        <input type="number" id="english" min="0" step="0.1" placeholder="Net sayısını gir" required>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="englishQuestions">📚 İngilizce Soru Sayısı:</label>
+                            <input type="number" id="englishQuestions" min="1" placeholder="Kaç soru çözdün?" required>
+                        </div>
+                        <div class="form-group half">
+                            <label for="english">✅ İngilizce Net:</label>
+                            <input type="number" id="english" min="0" step="0.1" placeholder="Net sayısı" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -53,40 +65,40 @@
                     <div class="stat-card math-card">
                         <h3>🔢 Matematik</h3>
                         <div class="stat-item">
-                            <span class="stat-label">Ortalama:</span>
+                            <span class="stat-label">Ortalama Net:</span>
                             <span class="stat-value" id="mathAvg">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Başarı Oranı:</span>
+                            <span class="stat-value" id="mathSuccessRate">0%</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">En Yüksek:</span>
                             <span class="stat-value" id="mathMax">0</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">En Düşük:</span>
-                            <span class="stat-value" id="mathMin">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Son 7 Gün Ort.:</span>
-                            <span class="stat-value" id="mathWeekAvg">0</span>
+                            <span class="stat-label">Son 7 Gün Oran:</span>
+                            <span class="stat-value" id="mathWeekRate">0%</span>
                         </div>
                     </div>
 
                     <div class="stat-card english-card">
                         <h3>🌍 İngilizce</h3>
                         <div class="stat-item">
-                            <span class="stat-label">Ortalama:</span>
+                            <span class="stat-label">Ortalama Net:</span>
                             <span class="stat-value" id="englishAvg">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Başarı Oranı:</span>
+                            <span class="stat-value" id="englishSuccessRate">0%</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">En Yüksek:</span>
                             <span class="stat-value" id="englishMax">0</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">En Düşük:</span>
-                            <span class="stat-value" id="englishMin">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Son 7 Gün Ort.:</span>
-                            <span class="stat-value" id="englishWeekAvg">0</span>
+                            <span class="stat-label">Son 7 Gün Oran:</span>
+                            <span class="stat-value" id="englishWeekRate">0%</span>
                         </div>
                     </div>
 
@@ -118,7 +130,6 @@
                     <h2>Bebeğimin Başarı Hikayesi</h2>
                     <div class="action-buttons">
                         <button class="btn btn-secondary" id="exportBtn">📥 Dışa Aktar</button>
-                        <button class="btn btn-danger" id="clearBtn">🗑️ Tümünü Sil</button>
                     </div>
                 </div>
 

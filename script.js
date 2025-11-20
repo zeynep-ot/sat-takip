@@ -71,7 +71,6 @@ document.getElementById('netForm').addEventListener('submit', function(e) {
     // Başarı mesajı
     const motivationalMessages = [
         '✨ Harikasın Aşk! Seninle gurur duyuyorum! 💕',
-        '🌟 Bir adım daha ileri! Sen muhteşemsin aşkım! ❤️',
         '💫 Her gün biraz daha büyük başarılara! 💜',
         '🎯 Süpersin Aşkım! Hedeflerine yaklaşıyorsun! 💕',
         '⭐ Çalışkan sevgilim benim! ❤️',

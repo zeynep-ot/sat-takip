@@ -1,9 +1,9 @@
 // ===================================
-// SUPABASE-ONLY VERSİYON (LocalStorage YOK)
+// SUPABASE-ONLY VERSİYON (Soru Sayıları ve Başarı Oranı ile)
 // ===================================
 
-// Kullanıcı ID'si - Gerçek uygulamada authentication ile gelecek
-const USER_ID = 'nur_user_001'; // Şimdilik sabit ID kullanıyoruz
+// Kullanıcı ID'si
+const USER_ID = 'nur_user_001';
 
 // Supabase'den verileri al
 async function getData() {
@@ -31,7 +31,6 @@ async function getData() {
 // Supabase'e veri kaydet
 async function saveData(entry) {
     try {
-        // Supabase'e kaydet
         const { data, error } = await supabase
             .from('sat_scores')
             .insert([{
@@ -40,6 +39,10 @@ async function saveData(entry) {
                 math_score: entry.math,
                 english_score: entry.english,
                 total_score: entry.total,
+                math_questions: entry.mathQuestions,
+                english_questions: entry.englishQuestions,
+                math_success_rate: entry.mathSuccessRate,
+                english_success_rate: entry.englishSuccessRate,
                 notes: entry.notes
             }])
             .select();
@@ -50,7 +53,6 @@ async function saveData(entry) {
             return false;
         }
 
-        // Başarılı kayıt sonrası entry'ye ID ekle
         if (data && data.length > 0) {
             entry.id = data[0].id;
         }
@@ -63,37 +65,17 @@ async function saveData(entry) {
     }
 }
 
-// Supabase'den veri sil
-async function deleteData(id) {
+// Kayda yorum ekle/güncelle
+async function updateReply(id, replyText) {
     try {
         const { error } = await supabase
             .from('sat_scores')
-            .delete()
+            .update({ reply: replyText })
             .eq('id', id);
 
         if (error) {
-            console.error('Silme hatası:', error);
-            alert('❌ Silme sırasında hata oluştu: ' + error.message);
-            return false;
-        }
-
-        return true;
-    } catch (err) {
-        console.error('Beklenmeyen hata:', err);
-        return false;
-    }
-}
-
-// Tüm verileri sil
-async function clearAllData() {
-    try {
-        const { error } = await supabase
-            .from('sat_scores')
-            .delete()
-            .eq('user_id', USER_ID);
-
-        if (error) {
-            console.error('Toplu silme hatası:', error);
+            console.error('Yorum güncelleme hatası:', error);
+            alert('❌ Yorum eklenirken hata oluştu: ' + error.message);
             return false;
         }
 
@@ -118,25 +100,51 @@ function formatNumber(num) {
     return Number(num).toFixed(1);
 }
 
+// Yüzde formatla
+function formatPercent(num) {
+    return Number(num).toFixed(1) + '%';
+}
+
 // Form submit olayı
 document.getElementById('netForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const date = document.getElementById('date').value;
+    const mathQuestions = parseInt(document.getElementById('mathQuestions').value);
     const math = parseFloat(document.getElementById('math').value);
+    const englishQuestions = parseInt(document.getElementById('englishQuestions').value);
     const english = parseFloat(document.getElementById('english').value);
     const notes = document.getElementById('notes').value.trim();
 
-    // Validasyon - Sadece pozitif sayı kontrolü
+    // Validasyon
     if (math < 0) {
-        alert('Matematik neti 0 veya daha büyük olmalıdır!');
+        alert('❌ Matematik neti 0 veya daha büyük olmalıdır!');
         return;
     }
 
     if (english < 0) {
-        alert('İngilizce neti 0 veya daha büyük olmalıdır!');
+        alert('❌ İngilizce neti 0 veya daha büyük olmalıdır!');
         return;
     }
+
+    if (math > mathQuestions) {
+        alert('❌ Matematik neti, soru sayısından fazla olamaz!');
+        return;
+    }
+
+    if (english > englishQuestions) {
+        alert('❌ İngilizce neti, soru sayısından fazla olamaz!');
+        return;
+    }
+
+    if (mathQuestions < 1 || englishQuestions < 1) {
+        alert('❌ Soru sayıları en az 1 olmalıdır!');
+        return;
+    }
+
+    // Başarı oranlarını hesapla
+    const mathSuccessRate = (math / mathQuestions) * 100;
+    const englishSuccessRate = (english / englishQuestions) * 100;
 
     // Yeni kayıt oluştur
     const newEntry = {
@@ -144,6 +152,10 @@ document.getElementById('netForm').addEventListener('submit', async function(e) 
         math: math,
         english: english,
         total: math + english,
+        mathQuestions: mathQuestions,
+        englishQuestions: englishQuestions,
+        mathSuccessRate: mathSuccessRate,
+        englishSuccessRate: englishSuccessRate,
         notes: notes
     };
 
@@ -171,17 +183,23 @@ document.getElementById('netForm').addEventListener('submit', async function(e) 
         await updateStats();
         await renderHistory();
 
-        // Başarı mesajı
-        const motivationalMessages = [
-            '✨ Harika gidiyorsun Nur! Gurur duyuyorum! 💕',
-            '🌟 Bir adım daha ileri! Sen muhteşemsin aşkım! ❤️',
-            '💫 Kaydedildi! Her gün biraz daha büyük başarılara! 💜',
-            '🎯 Süpersin Nur! Hedeflerine yaklaşıyorsun! 💕',
-            '⭐ Tebrikler! Çalışkan sevgilim benim! ❤️',
-            '💝 Kaydedildi! Sen her şeyin en iyisini hak ediyorsun! 🌟'
-        ];
-        const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-        alert(randomMessage);
+        // Başarı mesajı - Performansa göre özelleştirilmiş
+        let message;
+        const avgRate = (mathSuccessRate + englishSuccessRate) / 2;
+
+        if (avgRate >= 90) {
+            message = '🌟 MÜKEMMEL! %' + avgRate.toFixed(1) + ' başarı oranı! Harikasın aşkım! 💕';
+        } else if (avgRate >= 80) {
+            message = '✨ Çok iyi gidiyorsun Aşkım! %' + avgRate.toFixed(1) + ' başarı! Gurur duyuyorum! ❤️';
+        } else if (avgRate >= 70) {
+            message = '💫 Güzel! %' + avgRate.toFixed(1) + ' başarı oranı. İlerleyişin harika! 💜';
+        } else if (avgRate >= 60) {
+            message = '🎯 İyi! %' + avgRate.toFixed(1) + ' başarı. Devam et, gelişiyorsun! 💕';
+        } else {
+            message = '💪 Kaydedildi! Her gün biraz daha iyi olacaksın, pes etme! ❤️';
+        }
+
+        alert(message);
     }
 });
 
@@ -192,14 +210,14 @@ async function updateStats() {
     if (data.length === 0) {
         // Veri yoksa sıfırları göster
         document.getElementById('mathAvg').textContent = '0.0';
+        document.getElementById('mathSuccessRate').textContent = '0%';
         document.getElementById('mathMax').textContent = '0.0';
-        document.getElementById('mathMin').textContent = '0.0';
-        document.getElementById('mathWeekAvg').textContent = '0.0';
+        document.getElementById('mathWeekRate').textContent = '0%';
 
         document.getElementById('englishAvg').textContent = '0.0';
+        document.getElementById('englishSuccessRate').textContent = '0%';
         document.getElementById('englishMax').textContent = '0.0';
-        document.getElementById('englishMin').textContent = '0.0';
-        document.getElementById('englishWeekAvg').textContent = '0.0';
+        document.getElementById('englishWeekRate').textContent = '0%';
 
         document.getElementById('totalTests').textContent = '0';
         document.getElementById('totalAvg').textContent = '0.0';
@@ -208,13 +226,17 @@ async function updateStats() {
         return;
     }
 
-    // Supabase'den gelen veriler için field adlarını düzelt
+    // Verileri normalize et
     const normalizedData = data.map(entry => ({
         id: entry.id,
         date: entry.date,
         math: entry.math_score,
         english: entry.english_score,
         total: entry.total_score,
+        mathQuestions: entry.math_questions,
+        englishQuestions: entry.english_questions,
+        mathSuccessRate: entry.math_success_rate,
+        englishSuccessRate: entry.english_success_rate,
         notes: entry.notes
     }));
 
@@ -222,40 +244,76 @@ async function updateStats() {
     const mathScores = normalizedData.map(d => d.math);
     const mathAvg = mathScores.reduce((a, b) => a + b, 0) / mathScores.length;
     const mathMax = Math.max(...mathScores);
-    const mathMin = Math.min(...mathScores);
+
+    // Matematik başarı oranı ortalaması
+    const mathRates = normalizedData
+        .filter(d => d.mathSuccessRate != null)
+        .map(d => d.mathSuccessRate);
+    const mathSuccessRateAvg = mathRates.length > 0 ?
+        mathRates.reduce((a, b) => a + b, 0) / mathRates.length :
+        0;
 
     // İngilizce istatistikleri
     const englishScores = normalizedData.map(d => d.english);
     const englishAvg = englishScores.reduce((a, b) => a + b, 0) / englishScores.length;
     const englishMax = Math.max(...englishScores);
-    const englishMin = Math.min(...englishScores);
 
-    // Son 7 günün ortalaması
+    // İngilizce başarı oranı ortalaması
+    const englishRates = normalizedData
+        .filter(d => d.englishSuccessRate != null)
+        .map(d => d.englishSuccessRate);
+    const englishSuccessRateAvg = englishRates.length > 0 ?
+        englishRates.reduce((a, b) => a + b, 0) / englishRates.length :
+        0;
+
+    // Son 7 günün verileri
     const today = new Date();
     const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
     const recentData = normalizedData.filter(d => new Date(d.date) >= sevenDaysAgo);
 
-    let mathWeekAvg = 0;
-    let englishWeekAvg = 0;
+    let mathWeekRate = 0;
+    let englishWeekRate = 0;
 
     if (recentData.length > 0) {
-        mathWeekAvg = recentData.reduce((sum, d) => sum + d.math, 0) / recentData.length;
-        englishWeekAvg = recentData.reduce((sum, d) => sum + d.english, 0) / recentData.length;
+        const recentMathRates = recentData
+            .filter(d => d.mathSuccessRate != null)
+            .map(d => d.mathSuccessRate);
+        mathWeekRate = recentMathRates.length > 0 ?
+            recentMathRates.reduce((sum, r) => sum + r, 0) / recentMathRates.length :
+            0;
+
+        const recentEnglishRates = recentData
+            .filter(d => d.englishSuccessRate != null)
+            .map(d => d.englishSuccessRate);
+        englishWeekRate = recentEnglishRates.length > 0 ?
+            recentEnglishRates.reduce((sum, r) => sum + r, 0) / recentEnglishRates.length :
+            0;
     }
 
     // Toplam istatistikler
-    const totalAvg = (mathAvg + englishAvg);
+    const totalAvg = mathAvg + englishAvg;
     const sortedByDate = [...normalizedData].sort((a, b) => new Date(b.date) - new Date(a.date));
     const lastTestDate = formatDate(sortedByDate[0].date);
 
-    // İlerleme göstergesi
+    // İlerleme göstergesi - Başarı oranına göre
     let progressIcon = '📊';
     if (normalizedData.length >= 2) {
         const lastTwo = sortedByDate.slice(0, 2);
-        if (lastTwo[0].total > lastTwo[1].total) {
-            progressIcon = '📈 Yükseliş!';
-        } else if (lastTwo[0].total < lastTwo[1].total) {
-            progressIcon = '📉 Düşüş';
+
+        // Son iki testin ortalama başarı oranlarını karşılaştır
+        const lastRate = (lastTwo[0].mathSuccessRate + lastTwo[0].englishSuccessRate) / 2;
+        const prevRate = (lastTwo[1].mathSuccessRate + lastTwo[1].englishSuccessRate) / 2;
+
+        const rateDiff = lastRate - prevRate;
+
+        if (rateDiff > 5) {
+            progressIcon = '📈 Harika İlerleme! (+' + rateDiff.toFixed(1) + '%)';
+        } else if (rateDiff > 0) {
+            progressIcon = '📈 Yükseliş (+' + rateDiff.toFixed(1) + '%)';
+        } else if (rateDiff < -5) {
+            progressIcon = '📉 Düşüş (' + rateDiff.toFixed(1) + '%)';
+        } else if (rateDiff < 0) {
+            progressIcon = '📉 Hafif Düşüş (' + rateDiff.toFixed(1) + '%)';
         } else {
             progressIcon = '➡️ Sabit';
         }
@@ -263,14 +321,14 @@ async function updateStats() {
 
     // HTML'e yazdır
     document.getElementById('mathAvg').textContent = formatNumber(mathAvg);
+    document.getElementById('mathSuccessRate').textContent = formatPercent(mathSuccessRateAvg);
     document.getElementById('mathMax').textContent = formatNumber(mathMax);
-    document.getElementById('mathMin').textContent = formatNumber(mathMin);
-    document.getElementById('mathWeekAvg').textContent = formatNumber(mathWeekAvg);
+    document.getElementById('mathWeekRate').textContent = formatPercent(mathWeekRate);
 
     document.getElementById('englishAvg').textContent = formatNumber(englishAvg);
+    document.getElementById('englishSuccessRate').textContent = formatPercent(englishSuccessRateAvg);
     document.getElementById('englishMax').textContent = formatNumber(englishMax);
-    document.getElementById('englishMin').textContent = formatNumber(englishMin);
-    document.getElementById('englishWeekAvg').textContent = formatNumber(englishWeekAvg);
+    document.getElementById('englishWeekRate').textContent = formatPercent(englishWeekRate);
 
     document.getElementById('totalTests').textContent = normalizedData.length;
     document.getElementById('totalAvg').textContent = formatNumber(totalAvg);
@@ -288,96 +346,118 @@ async function renderHistory(filteredData = null) {
         return;
     }
 
-    // Supabase'den gelen veriler için field adlarını düzelt
+    // Verileri normalize et
     const normalizedData = data.map(entry => ({
         id: entry.id,
         date: entry.date,
         math: entry.math_score || entry.math,
         english: entry.english_score || entry.english,
         total: entry.total_score || entry.total,
-        notes: entry.notes
+        mathQuestions: entry.math_questions || entry.mathQuestions,
+        englishQuestions: entry.english_questions || entry.englishQuestions,
+        mathSuccessRate: entry.math_success_rate || entry.mathSuccessRate,
+        englishSuccessRate: entry.english_success_rate || entry.englishSuccessRate,
+        notes: entry.notes,
+        reply: entry.reply
     }));
 
     // Tarihe göre sırala (en yeni önce)
     const sortedData = [...normalizedData].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    historyList.innerHTML = sortedData.map(entry => `
+    historyList.innerHTML = sortedData.map(entry => {
+                const mathRate = entry.mathSuccessRate ? formatPercent(entry.mathSuccessRate) : 'N/A';
+                const englishRate = entry.englishSuccessRate ? formatPercent(entry.englishSuccessRate) : 'N/A';
+                const avgRate = entry.mathSuccessRate && entry.englishSuccessRate ?
+                    formatPercent((entry.mathSuccessRate + entry.englishSuccessRate) / 2) :
+                    'N/A';
+
+                return `
         <div class="history-item">
             <div class="history-header">
                 <span class="history-date">📅 ${formatDate(entry.date)}</span>
-                <button class="delete-btn" onclick="deleteEntry(${entry.id})">🗑️ Sil</button>
             </div>
             <div class="history-scores">
                 <div class="score-item math">
                     <span class="score-label">Matematik</span>
-                    <span class="score-value">${formatNumber(entry.math)}</span>
+                    <span class="score-value">${formatNumber(entry.math)} / ${entry.mathQuestions || '?'}</span>
+                    <span class="score-rate">${mathRate}</span>
                 </div>
                 <div class="score-item english">
                     <span class="score-label">İngilizce</span>
-                    <span class="score-value">${formatNumber(entry.english)}</span>
+                    <span class="score-value">${formatNumber(entry.english)} / ${entry.englishQuestions || '?'}</span>
+                    <span class="score-rate">${englishRate}</span>
                 </div>
                 <div class="score-item total">
-                    <span class="score-label">Toplam</span>
+                    <span class="score-label">Toplam Net</span>
                     <span class="score-value">${formatNumber(entry.total)}</span>
+                    <span class="score-rate">Ort: ${avgRate}</span>
                 </div>
             </div>
             ${entry.notes ? `<div class="history-notes">📝 ${entry.notes}</div>` : ''}
+            ${entry.reply ? `<div class="history-reply">❤️<strong>:</strong> ${entry.reply}</div>` : ''}
+            <div class="reply-section">
+                <button class="reply-btn" onclick="toggleReplyForm(${entry.id})">💬 Yorum Yaz</button>
+                <div id="reply-form-${entry.id}" class="reply-form" style="display: none;">
+                    <textarea id="reply-input-${entry.id}" class="reply-input" placeholder="Yorumunu buraya yaz..." rows="3">${entry.reply || ''}</textarea>
+                    <div class="reply-actions">
+                        <button class="btn-save-reply" onclick="saveReply(${entry.id})">💾 Kaydet</button>
+                        <button class="btn-cancel-reply" onclick="toggleReplyForm(${entry.id})">❌ İptal</button>
+                    </div>
+                </div>
+            </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Kayıt sil
-async function deleteEntry(id) {
-    if (confirm('Bu kaydı silmek istediğinizden emin misiniz?')) {
-        // Silme sırasında loading göster
-        const historyList = document.getElementById('historyList');
-        const originalHTML = historyList.innerHTML;
-        historyList.innerHTML = '<p class="empty-message">⏳ Siliniyor...</p>';
-
-        const success = await deleteData(id);
-
-        if (success) {
-            await updateStats();
-            await renderHistory();
-        } else {
-            // Hata durumunda eski içeriği geri yükle
-            historyList.innerHTML = originalHTML;
-        }
+// Yorum formunu aç/kapat
+function toggleReplyForm(id) {
+    const form = document.getElementById(`reply-form-${id}`);
+    if (form) {
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
     }
 }
 
-// Tüm kayıtları sil
-document.getElementById('clearBtn').addEventListener('click', async function() {
-    if (confirm('⚠️ TÜM KAYITLARI SİLMEK İSTEDİĞİNİZDEN EMİN MİSİNİZ?\n\nBu işlem geri alınamaz!')) {
-        if (confirm('Son kez soruyorum: Tüm veriler silinecek, emin misiniz?')) {
-            // Silme sırasında loading göster
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '<p class="empty-message">⏳ Tüm kayıtlar siliniyor...</p>';
+// Yorum kaydet
+async function saveReply(id) {
+    const input = document.getElementById(`reply-input-${id}`);
+    if (!input) return;
 
-            const success = await clearAllData();
-
-            if (success) {
-                await updateStats();
-                await renderHistory();
-                alert('✅ Tüm kayıtlar silindi.');
-            } else {
-                alert('❌ Silme işlemi başarısız oldu!');
-                await renderHistory();
-            }
-        }
+    const replyText = input.value.trim();
+    
+    if (replyText === '') {
+        alert('⚠️ Yorum boş olamaz!');
+        return;
     }
-});
+
+    // Kaydetme sırasında loading göster
+    const originalValue = input.value;
+    input.value = '⏳ Kaydediliyor...';
+    input.disabled = true;
+
+    const success = await updateReply(id, replyText);
+
+    if (success) {
+        // Formu kapat ve listeyi güncelle
+        toggleReplyForm(id);
+        await renderHistory();
+        alert('✅ Yorum kaydedildi!');
+    } else {
+        // Hata durumunda eski değeri geri yükle
+        input.value = originalValue;
+        input.disabled = false;
+    }
+}
 
 // Verileri dışa aktar (CSV formatında)
 document.getElementById('exportBtn').addEventListener('click', async function() {
-    // Export sırasında loading göster
     const originalText = this.textContent;
     this.textContent = '⏳ Yükleniyor...';
     this.disabled = true;
 
     const data = await getData();
 
-    // Butonu eski haline getir
     this.textContent = originalText;
     this.disabled = false;
 
@@ -386,19 +466,22 @@ document.getElementById('exportBtn').addEventListener('click', async function() 
         return;
     }
 
-    // Supabase'den gelen veriler için field adlarını düzelt
     const normalizedData = data.map(entry => ({
         date: entry.date,
         math: entry.math_score,
+        mathQuestions: entry.math_questions,
+        mathRate: entry.math_success_rate,
         english: entry.english_score,
+        englishQuestions: entry.english_questions,
+        englishRate: entry.english_success_rate,
         total: entry.total_score,
         notes: entry.notes || ''
     }));
 
     // CSV formatında veri oluştur
-    let csv = 'Tarih,Matematik,İngilizce,Toplam,Notlar\n';
+    let csv = 'Tarih,Matematik Net,Mat Soru,Mat Başarı %,İngilizce Net,İng Soru,İng Başarı %,Toplam Net,Notlar\n';
     normalizedData.forEach(entry => {
-        csv += `${formatDate(entry.date)},${entry.math},${entry.english},${entry.total},"${entry.notes}"\n`;
+        csv += `${formatDate(entry.date)},${entry.math},${entry.mathQuestions},${entry.mathRate?.toFixed(1) || ''},${entry.english},${entry.englishQuestions},${entry.englishRate?.toFixed(1) || ''},${entry.total},"${entry.notes}"\n`;
     });
 
     // Dosyayı indir
@@ -425,13 +508,16 @@ document.getElementById('searchInput').addEventListener('input', async function(
         return;
     }
 
-    // Supabase'den gelen veriler için field adlarını düzelt
     const normalizedData = data.map(entry => ({
         id: entry.id,
         date: entry.date,
         math: entry.math_score,
         english: entry.english_score,
         total: entry.total_score,
+        mathQuestions: entry.math_questions,
+        englishQuestions: entry.english_questions,
+        mathSuccessRate: entry.math_success_rate,
+        englishSuccessRate: entry.english_success_rate,
         notes: entry.notes || ''
     }));
 
@@ -449,17 +535,19 @@ document.getElementById('sortSelect').addEventListener('change', async function(
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     let data = await getData();
 
-    // Supabase'den gelen veriler için field adlarını düzelt
     const normalizedData = data.map(entry => ({
         id: entry.id,
         date: entry.date,
         math: entry.math_score,
         english: entry.english_score,
         total: entry.total_score,
+        mathQuestions: entry.math_questions,
+        englishQuestions: entry.english_questions,
+        mathSuccessRate: entry.math_success_rate,
+        englishSuccessRate: entry.english_success_rate,
         notes: entry.notes || ''
     }));
 
-    // Önce arama filtresi uygula
     if (searchTerm !== '') {
         data = normalizedData.filter(entry => {
             const dateStr = formatDate(entry.date).toLowerCase();
@@ -524,5 +612,5 @@ window.addEventListener('DOMContentLoaded', async function() {
     await updateStats();
     await renderHistory();
 
-    console.log('✅ Uygulama hazır (Supabase-only mode)');
+    console.log('✅ Uygulama hazır (Supabase + Başarı Oranı sistemi)');
 });
