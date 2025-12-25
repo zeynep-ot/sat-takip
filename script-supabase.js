@@ -613,5 +613,4 @@ window.addEventListener('DOMContentLoaded', async function() {
     await renderHistory();
 
     console.log('✅ Uygulama hazır (Supabase + Başarı Oranı sistemi)');
-
 });
