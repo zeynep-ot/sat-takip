@@ -8,7 +8,7 @@ const USER_ID = 'nur_user_001';
 // Supabase'den verileri al
 async function getData() {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('sat_scores')
             .select('*')
             .eq('user_id', USER_ID)
@@ -31,7 +31,7 @@ async function getData() {
 // Supabase'e veri kaydet
 async function saveData(entry) {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('sat_scores')
             .insert([{
                 user_id: USER_ID,
@@ -68,7 +68,7 @@ async function saveData(entry) {
 // Kayda yorum ekle/güncelle
 async function updateReply(id, replyText) {
     try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('sat_scores')
             .update({ reply: replyText })
             .eq('id', id);
@@ -593,7 +593,7 @@ window.addEventListener('DOMContentLoaded', async function() {
 
     // Supabase bağlantısını test et
     try {
-        const { data, error } = await supabase.from('sat_scores').select('count').limit(1);
+        const { data, error } = await supabaseClient.from('sat_scores').select('count').limit(1);
         if (error) {
             console.error('⚠️ Supabase bağlantı hatası:', error);
             alert('⚠️ Veritabanı bağlantısı kurulamadı. Lütfen internet bağlantınızı kontrol edin.');
@@ -613,4 +613,5 @@ window.addEventListener('DOMContentLoaded', async function() {
     await renderHistory();
 
     console.log('✅ Uygulama hazır (Supabase + Başarı Oranı sistemi)');
+
 });
